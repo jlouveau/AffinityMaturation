@@ -536,13 +536,29 @@ public final class GerminalCenter {
 		trialWriter.print(cycleIndex);
 		trialWriter.print(",");
 		trialWriter.print(activeCount());
+		System.out.println("active B cells " + activeCount());
 		trialWriter.print(",");
-		trialWriter.print(formatter.format(computeMean(resolveDeleteriousMutationsCount(nowActive()))));
-		trialWriter.print(",");
-		trialWriter.print(formatter.format(computeMean(resolveBeneficialMutationsCount(nowActive())))); 
-		trialWriter.print(",");
-		trialWriter.print(formatter.format(computeMean(resolveMutationsCount((nowActive()))))); 
-
+		if(activeCount() < 1){
+			trialWriter.print("all die");
+			trialWriter.print(",");
+			trialWriter.print("all die");
+			trialWriter.print(",");
+			trialWriter.print("all die");
+			trialWriter.print(",");
+			trialWriter.print(gcProp.getConcentration());
+			trialWriter.print(",");
+			trialWriter.print("all die");
+			trialWriter.print(",");
+			trialWriter.print("all die");
+			trialWriter.print(",");
+			trialWriter.print("all die");
+			}
+		else{
+			trialWriter.print(formatter.format(computeMean(resolveDeleteriousMutationsCount(nowActive()))));
+			trialWriter.print(",");
+			trialWriter.print(formatter.format(computeMean(resolveBeneficialMutationsCount(nowActive())))); 
+			trialWriter.print(",");
+			trialWriter.print(formatter.format(computeMean(resolveMutationsCount((nowActive()))))); 
 
 			trialWriter.print(",");
 			trialWriter.print(gcProp.getConcentration());
@@ -552,7 +568,7 @@ public final class GerminalCenter {
 			trialWriter.print(formatter.format(computeVariance(resolveEnergyChange(nowActive()))));
 			trialWriter.print(",");
 			trialWriter.print(formatter.format(resolveTotalAffinityChange(nowActive())));
-
+		}
 		trialWriter.println();
 	}
 	
@@ -686,6 +702,10 @@ public final class GerminalCenter {
 		if (ratioOfOccupiedSites > 1 || ratioOfOccupiedSites < 0) {
 			throw new IllegalStateException("ratioOfOccupiedSites not within  0 and 1");
 		}
+		//System.out.println(activeCell.getAntigenQty());
+		
+		if (!random.accept(ratioOfOccupiedSites))
+            iterator.remove();
 	}
 
 	private Antigen selectAntigen() {
