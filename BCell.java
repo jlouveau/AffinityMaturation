@@ -283,7 +283,8 @@ public final class BCell {
 	 *            the presented antigen.
 	 */
 	public void bindAntigen(Antigen antigen) {
-		double energy = receptor.calculateEnergy(antigen.getEpitope());
+		Receptor Bcellreceptor = this.getReceptor(); 
+		double energy = Bcellreceptor.calculateEnergy(antigen.getEpitope());
 		double bindRate = computeBindingRate(energy, antigen.getConcentration());
 		antigenQty = antigenQty + bindRate;
 	}
@@ -301,7 +302,8 @@ public final class BCell {
 
 	private double computeBindingRate(double energy, double concentration) {
 		BCellProp bcProp = BCellProp.instance();
-		return concentration * computeBindingConstant(energy - bcProp.getActivationThreshold());
+		return concentration * computeBindingConstant(energy); 
+		//return concentration * computeBindingConstant(energy - bcProp.getActivationThreshold());
 	}
 
 	private double computeBindingConstant(double energy) {
