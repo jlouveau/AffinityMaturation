@@ -8,6 +8,7 @@ import org.apache.commons.collections.primitives.ArrayDoubleList;
 
 import tip.math.BitVector;
 import tip.math.GeneralizedExtremeValueDistribution;
+import tip.math.TipRandom;
 
 /**
  * Represents a B cell receptor as a vector coord of fixed length
@@ -47,9 +48,10 @@ public final class Receptor {
 		Receptor founderReceptor = generateRandomReceptor(bcProp);
 		int randomIndex = 0;
 		do {
-			randomIndex = (int) (Math.random() * bcProp.getReceptorLength());
-			founderReceptor.getCoord()[randomIndex] = (max - min) * Math.random() + min;
+			randomIndex = TipRandom.instance().nextInt(bcProp.getReceptorLength()); // (int) (Math.random() * bcProp.getReceptorLength());
+			founderReceptor.getCoord()[randomIndex] = TipRandom.instance().nextDouble(min, max); //(max - min) * Math.random() + min;
 // CHANGE IT so that it doesn't start from scratch?
+			//System.out.println(founderReceptor.calculateEnergy(founderEpitope));
 		} while (founderReceptor.calculateEnergy(founderEpitope) < activationEnergy);
 
 		return founderReceptor;
@@ -62,8 +64,8 @@ public final class Receptor {
 		double min = bcProp.getMin();
 
 		for (int i = 0; i < bcProp.getReceptorLength(); i++) {
-			double RANDOM = Math.random();
-			coord[i] = (max - min) * RANDOM + min;
+			//double RANDOM = Math.random();
+			coord[i] = TipRandom.instance().nextDouble(min, max); //(max - min) * RANDOM + min;
 		}
 		return new Receptor(coord);
 	}
@@ -97,6 +99,7 @@ public final class Receptor {
 			for (int i = 0; i < length; i++) {
 				energy = energy + this.getCoord()[i] * (double) epitopeToIntegers[i];
 			}
+			//System.out.println(energy);
 			return energy;
 		}
 		else{
@@ -131,13 +134,13 @@ public final class Receptor {
 		double mutationMin = bcProp.getMutationMin();
 		int consLength = agProp.getConservedLength();
 
-		int randomNum = (int) (Math.random() * (parent.getReceptor().getReceptorLength()));
+		int randomNum = TipRandom.instance().nextInt(parent.getReceptor().getReceptorLength()); //(int) (Math.random() * (parent.getReceptor().getReceptorLength()));
 		double delta = mutateSite(target, randomNum, kappa, sigma, mu);
 		newCoord[randomNum] = newCoord[randomNum] + delta;
 
 		if (randomNum >= consLength){
 			//change variable site
-			int randomCons = (int) (Math.random() * consLength);
+			int randomCons = TipRandom.instance().nextInt(consLength); //(int) (Math.random() * consLength);
 			newCoord[randomCons] = newCoord[randomCons] - alpha * delta;
 		}
 		

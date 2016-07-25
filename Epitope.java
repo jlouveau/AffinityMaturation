@@ -76,8 +76,8 @@ public final class Epitope {
 		BitVector newCoord = founder.getEpitope().getCoord().copy();
 
 		do {
-			int randomNum = founder.getEpitope().getConservedLength()
-					+ (int) (Math.random() * (founder.getEpitope().getVariableLength()));
+			int randomNum = founder.getEpitope().getConservedLength() + TipRandom.instance().nextInt(founder.getEpitope().getVariableLength());
+					//+ (int) (Math.random() * (founder.getEpitope().getVariableLength()));
 			newCoord.flip(randomNum);
 			nbMutations++;
 		} while (nbMutations < mutationalDistance);
