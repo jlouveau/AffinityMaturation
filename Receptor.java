@@ -19,8 +19,13 @@ import tip.math.TipRandom;
 public final class Receptor {
 	private final double[] coord;
 
+//	private Receptor(double[] coord) {
+//		this.coord = coord;
+//	}
+	
+	//private constructor should be immutable so deep copy
 	private Receptor(double[] coord) {
-		this.coord = coord;
+	    this.coord = java.util.Arrays.copyOf(coord, coord.length);
 	}
 
 	/**
@@ -46,16 +51,21 @@ public final class Receptor {
 		double max = bcProp.getMax();
 		double min = bcProp.getMin();
 		Receptor founderReceptor = generateRandomReceptor(bcProp);
+
+		//System.out.println(java.util.Arrays.toString(founderReceptor.getCoord()));
+
+        //System.out.println(founderEpitope.getCoord());
+       
 		int randomIndex = 0;
 		do {
 			randomIndex = TipRandom.instance().nextInt(bcProp.getReceptorLength()); // (int) (Math.random() * bcProp.getReceptorLength());
 			founderReceptor.getCoord()[randomIndex] = TipRandom.instance().nextDouble(min, max); //(max - min) * Math.random() + min;
 // CHANGE IT so that it doesn't start from scratch?
 			//System.out.println(founderReceptor.calculateEnergy(founderEpitope));
-		} while (founderReceptor.calculateEnergy(founderEpitope) < activationEnergy);
-
+		} while (founderReceptor.calculateEnergy(founderEpitope) >= activationEnergy); 
+		
+		//System.out.println(founderReceptor.calculateEnergy(founderEpitope) );
 		return founderReceptor;
-
 	}
 
 	private static Receptor generateRandomReceptor(BCellProp bcProp) {
@@ -90,16 +100,30 @@ public final class Receptor {
 	 * @return a sum(V(k)*A(k))
 	 */
 	public double calculateEnergy(Epitope epitope) {
+//		int withinBoundaries = 0;
 		BCellProp bcProp = BCellProp.instance();
 		if (this.validatePair(epitope)){
 			int length = bcProp.getReceptorLength();
-
 			double energy = 0.0;
 			int[] epitopeToIntegers = epitope.getCoord().formatToInteger();
 			for (int i = 0; i < length; i++) {
 				energy = energy + this.getCoord()[i] * (double) epitopeToIntegers[i];
 			}
-			//System.out.println(energy);
+//			if (energy < bcProp.getActivationThreshold()+8 && (energy > bcProp.getActivationThreshold()-8)){
+//				withinBoundaries++;
+//			}
+//			if (energy > bcProp.getActivationThreshold()+8){
+//				energy = bcProp.getActivationThreshold()+8;
+//			}
+//			if (energy < bcProp.getActivationThreshold()-8){
+//				energy = bcProp.getActivationThreshold()-8;
+//			}
+			
+//			if (energy <= 0.0){
+//			energy = 0.0001;
+//			}
+			
+//			System.out.println(withinBoundaries);
 			return energy;
 		}
 		else{
@@ -125,7 +149,12 @@ public final class Receptor {
 	 *         the parent BCell
 	 */
 	public static Receptor mutate(BCell parent, Epitope target, BCellProp bcProp, AntigenProp agProp) {
-		double[] newCoord = parent.getReceptor().getCoord();
+		
+		double[] parentCoord = parent.getReceptor().getCoord();
+		//System.out.println("parent " + java.util.Arrays.toString(parentCoord));
+		double[] newCoord = java.util.Arrays.copyOf(parentCoord, parentCoord.length);
+		//System.out.println("daughter " + java.util.Arrays.toString(newCoord));
+		
 		double sigma = bcProp.getSigma();
 		double mu = bcProp.getMu();
 		double kappa = bcProp.getKappa();
@@ -135,22 +164,25 @@ public final class Receptor {
 		int consLength = agProp.getConservedLength();
 
 		int randomNum = TipRandom.instance().nextInt(parent.getReceptor().getReceptorLength()); //(int) (Math.random() * (parent.getReceptor().getReceptorLength()));
+		//System.out.println(randomNum);
 		double delta = mutateSite(target, randomNum, kappa, sigma, mu);
 		newCoord[randomNum] = newCoord[randomNum] + delta;
-
+		
 		if (randomNum >= consLength){
 			//change variable site
 			int randomCons = TipRandom.instance().nextInt(consLength); //(int) (Math.random() * consLength);
 			newCoord[randomCons] = newCoord[randomCons] - alpha * delta;
+			//System.out.println(randomCons);
+			//check the conserved site is within mutation boundaries
+			if (newCoord[randomCons] < mutationMin){
+				newCoord[randomCons] = mutationMin;
+			}
+			else if (newCoord[randomCons] > mutationMax){
+				newCoord[randomCons] = mutationMax;
+			}
 		}
-		
-		if (newCoord[randomNum] < mutationMin){
-			newCoord[randomNum] = mutationMin;
-		}
-		if (newCoord[randomNum] > mutationMax){
-			newCoord[randomNum] = mutationMax;
-		}
-		
+		//System.out.println("daughter " + java.util.Arrays.toString(newCoord));
+
 		return new Receptor(newCoord);
 	}
 
