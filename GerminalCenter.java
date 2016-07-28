@@ -481,6 +481,11 @@ public final class GerminalCenter {
 			BCell founderCell = BCell.createFounder(selectAntigen());
 			founderCells.add(founderCell);
 		}
+		for (BCell founderCell : founderCells){
+			founderCell.findMaxEpitopeinList(antigenEpitopes);
+		}
+		//System.out.println("founders generated");
+		//System.exit(1);
 	}
 
 	private void replicateFounders() {
@@ -536,7 +541,7 @@ public final class GerminalCenter {
 		trialWriter.print(cycleIndex);
 		trialWriter.print(",");
 		trialWriter.print(activeCount());
-		System.out.println("active B cells " + activeCount());
+		//System.out.println("active B cells " + activeCount());
 		trialWriter.print(",");
 		if(activeCount() < 1){
 			trialWriter.print("all die");
@@ -604,14 +609,25 @@ public final class GerminalCenter {
 		array.clear();
 		for (BCell bcell : activeBcells){
 			array.add(bcell.getEnergyChange());
+			//System.out.println(bcell.getEnergyChange());
 		}
 		return array;
 	}
 	
 	private double resolveTotalAffinityChange(List<BCell> activeBcells){
 		double totalAffinity = BCell.resolveTotalAffinity(activeBcells);
-		List<BCell> founderCellsList = new ArrayList<BCell>(founderCells );
+		
+		List<BCell> founderCellsList = new ArrayList<BCell>(founderCells);
+		for (BCell found : founderCellsList){
+			//System.out.println(java.util.Arrays.toString(found.getReceptor().getCoord()));
+			//System.out.println(found.getMaxEnergy());
+		}
+		//System.out.println(founderCellsList.size());
 		double totalAffinityInit = BCell.resolveTotalAffinity(founderCellsList);
+		
+		//System.out.println("initial Affinity " + totalAffinityInit);
+		//System.out.println(totalAffinity);
+		
 		return totalAffinity/totalAffinityInit;
 	}
 	
